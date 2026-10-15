@@ -219,7 +219,8 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
             height: '100%',
             objectFit: 'cover',
             objectPosition: 'center right',
-            opacity: videoLoaded ? 1 : 0.85,
+            opacity: videoLoaded ? 1 : 0.9,
+            filter: 'brightness(1.12) contrast(1.05) saturate(1.12)',
             transition: 'opacity 0.6s ease',
           }}
           aria-hidden="true"
@@ -241,8 +242,7 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
           />
         )}
 
-        {/* Cinematic low-distraction navy gradient overlay:
-            Dense on left for crisp typography, subtle on right to preserve the video's Earth, routes and campus */}
+        {/* Crystal-clear bright presentation: ultra-subtle edge gradient only */}
         <div
           style={{
             position: 'absolute',
@@ -250,20 +250,19 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
             left: 0,
             width: '100%',
             height: '100%',
-            background:
-              'linear-gradient(90deg, rgba(20, 34, 53, 0.95) 0%, rgba(20, 34, 53, 0.78) 38%, rgba(20, 34, 53, 0.35) 72%, rgba(20, 34, 53, 0.45) 100%)',
+            background: 'linear-gradient(90deg, rgba(20, 34, 53, 0.25) 0%, transparent 40%)',
           }}
         />
 
-        {/* Bottom subtle blend into content */}
+        {/* Bottom subtle edge blend */}
         <div
           style={{
             position: 'absolute',
             bottom: 0,
             left: 0,
             width: '100%',
-            height: '120px',
-            background: 'linear-gradient(to top, rgba(20, 34, 53, 0.9) 0%, transparent 100%)',
+            height: '60px',
+            background: 'linear-gradient(to top, rgba(20, 34, 53, 0.25) 0%, transparent 100%)',
           }}
         />
       </div>
@@ -282,7 +281,19 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
           paddingBottom: '3.5rem',
         }}
       >
-        <div style={{ maxWidth: '640px' }}>
+        <div
+          className="hero-glass-card"
+          style={{
+            maxWidth: '620px',
+            backgroundColor: 'rgba(20, 34, 53, 0.62)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.16)',
+            borderRadius: '24px',
+            padding: '2.5rem',
+            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.45)',
+          }}
+        >
           {/* Narrative journey chapter pill */}
           <div
             style={{
@@ -687,6 +698,9 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
         @media (max-width: 640px) {
           .timeline-stepper {
             display: none !important;
+          }
+          .hero-glass-card {
+            padding: 1.5rem !important;
           }
         }
       `}</style>
