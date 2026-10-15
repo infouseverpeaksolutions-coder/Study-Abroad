@@ -1,16 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import {
-  ArrowRight,
-  Globe,
-  Building2,
-  GraduationCap,
-  FastForward,
-  Play,
-  Pause,
-  Plane,
-} from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,10 +15,8 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [duration, setDuration] = useState(23.0);
-  const [currentProgress, setCurrentProgress] = useState(0);
   const [activeChapter, setActiveChapter] = useState(0);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
-  const [isPlayingManual, setIsPlayingManual] = useState(false);
 
   const targetTimeRef = useRef(0);
   const rafIdRef = useRef<number | null>(null);
@@ -57,7 +46,7 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
               video.currentTime = targetTimeRef.current;
             }
           } catch {
-            // fallback safe
+            // fallback
           }
         }
       }
@@ -80,7 +69,7 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
     }
   };
 
-  // Setup GSAP ScrollTrigger for video scrubbing
+  // Setup GSAP ScrollTrigger for video scrubbing & text animations
   useEffect(() => {
     if (isReducedMotion) {
       return;
@@ -105,11 +94,11 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
         anticipatePin: 1,
         onUpdate: (self) => {
           const prog = self.progress;
-          setCurrentProgress(prog);
 
           const vidDur = video?.duration || 23.0;
           targetTimeRef.current = Math.min(prog * vidDur, vidDur - 0.05);
 
+          // Update chapter based on scroll
           if (prog < 0.25) {
             setActiveChapter(0);
           } else if (prog < 0.55) {
@@ -140,91 +129,48 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
     }
   };
 
-  // Clickable Chapter Jumper
-  const jumpToChapter = (chapterIndex: number) => {
-    const targetProg =
-      chapterIndex === 0 ? 0.05 : chapterIndex === 1 ? 0.35 : chapterIndex === 2 ? 0.65 : 0.9;
-    if (scrollTriggerRef.current) {
-      const st = scrollTriggerRef.current;
-      const scrollPos = st.start + targetProg * (st.end - st.start);
-      window.scrollTo({ top: scrollPos, behavior: 'smooth' });
-    } else {
-      setActiveChapter(chapterIndex);
-      if (videoRef.current) {
-        const vidDur = videoRef.current.duration || 23.0;
-        videoRef.current.currentTime = targetProg * vidDur;
-      }
-    }
-  };
-
-  // Interactive timeline scrub click
-  const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const progress = Math.max(0, Math.min(1, clickX / rect.width));
-    if (scrollTriggerRef.current) {
-      const st = scrollTriggerRef.current;
-      const scrollPos = st.start + progress * (st.end - st.start);
-      window.scrollTo({ top: scrollPos, behavior: 'smooth' });
-    }
-  };
-
-  // Toggle manual video play
-  const togglePlayManual = () => {
-    if (!videoRef.current) return;
-    if (isPlayingManual) {
-      videoRef.current.pause();
-      setIsPlayingManual(false);
-    } else {
-      videoRef.current
-        .play()
-        .then(() => setIsPlayingManual(true))
-        .catch(() => {});
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
-
-  const chapters = [
+  const scenes = [
     {
       id: 0,
-      title: 'Global Horizons',
-      subtitle: 'Earth & Global Scope',
-      icon: Globe,
-      time: '0s - 5s',
-      badge: '45+ Countries Mapped',
+      tag: 'GLOBAL ADVISORY • 2026 / 2027',
+      headlineMain: 'Your Journey',
+      headlineAccent: 'Starts Here.',
+      description:
+        'Expert guidance to help you find the right destination, university and pathway to your future.',
+      primaryBtnText: 'Book a Free Consultation',
+      secondaryBtnText: 'Explore Destinations',
     },
     {
       id: 1,
-      title: 'Destination Mapping',
-      subtitle: 'Flight Corridors & Hubs',
-      icon: Plane,
-      time: '5s - 12s',
-      badge: 'UK • Canada • Australia',
+      tag: 'INTERNATIONAL EDUCATION PATHWAYS',
+      headlineMain: 'Explore Global',
+      headlineAccent: 'Destinations.',
+      description:
+        'Connecting ambitious scholars with premier institutions across the United Kingdom, Canada, and Australia.',
+      primaryBtnText: 'Book a Free Consultation',
+      secondaryBtnText: 'Explore Destinations',
     },
     {
       id: 2,
-      title: 'Campus Discovery',
-      subtitle: 'Modern Academic Quad',
-      icon: Building2,
-      time: '12s - 18s',
-      badge: 'World-Class Infrastructure',
+      tag: 'CAMPUS & RESEARCH EXCELLENCE',
+      headlineMain: 'Discover Modern',
+      headlineAccent: 'Campus Life.',
+      description:
+        'Experience world-class learning environments that foster innovation, academic excellence, and personal growth.',
+      primaryBtnText: 'Book a Free Consultation',
+      secondaryBtnText: 'Explore Destinations',
     },
     {
       id: 3,
-      title: 'Student Community',
-      subtitle: 'Campus Arrival & Integration',
-      icon: GraduationCap,
-      time: '18s - 23s',
-      badge: 'Global Scholar Network',
+      tag: 'PERSONAL GUIDANCE & CONFIDENCE',
+      headlineMain: 'Step Into',
+      headlineAccent: 'Your Future.',
+      description:
+        'Comprehensive, transparent advisory support from initial consultation to university enrollment and arrival.',
+      primaryBtnText: 'Book a Free Consultation',
+      secondaryBtnText: 'Explore Destinations',
     },
   ];
-
-  const currentSeconds = currentProgress * duration;
 
   return (
     <div
@@ -239,7 +185,7 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
       }}
       id="hero-cinematic"
     >
-      {/* 1. CINEMATIC VIDEO / POSTER MEDIA LAYER (100% BRIGHT & VIVID) */}
+      {/* 1. CINEMATIC VIDEO MEDIA LAYER (BRIGHT & VIVID) */}
       <div
         style={{
           position: 'absolute',
@@ -265,9 +211,9 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: 'center right',
+            objectPosition: 'center',
             opacity: videoLoaded ? 1 : 0.9,
-            filter: 'brightness(1.14) contrast(1.05) saturate(1.14)',
+            filter: 'brightness(1.15) contrast(1.05) saturate(1.15)',
             transition: 'opacity 0.6s ease',
           }}
           aria-hidden="true"
@@ -289,114 +235,34 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
           />
         )}
 
-        {/* Subtle radial ambient light behind the card to create depth without darkening the video */}
+        {/* Soft radial contrast mask centered behind typography to ensure pure readability without dark boxes */}
         <div
           style={{
             position: 'absolute',
-            top: '20%',
-            left: '10%',
-            width: '600px',
-            height: '600px',
-            background: 'radial-gradient(circle, rgba(120, 154, 152, 0.16) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Ultra-subtle left edge gradient only */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             width: '100%',
             height: '100%',
-            background: 'linear-gradient(90deg, rgba(20, 34, 53, 0.22) 0%, transparent 40%)',
+            background:
+              'radial-gradient(ellipse at center, rgba(20, 34, 53, 0.42) 0%, rgba(20, 34, 53, 0.18) 55%, transparent 80%)',
           }}
         />
 
-        {/* Bottom subtle edge blend */}
+        {/* Subtle bottom edge blend */}
         <div
           style={{
             position: 'absolute',
             bottom: 0,
             left: 0,
             width: '100%',
-            height: '60px',
-            background: 'linear-gradient(to top, rgba(20, 34, 53, 0.25) 0%, transparent 100%)',
+            height: '80px',
+            background: 'linear-gradient(to top, rgba(20, 34, 53, 0.35) 0%, transparent 100%)',
           }}
         />
       </div>
 
-      {/* 2. DYNAMIC FLOATING CONTEXT BADGE OVER VIDEO (TOP-RIGHT) */}
-      <div
-        className="scene-context-badge"
-        style={{
-          position: 'absolute',
-          top: '5.5rem',
-          right: '2.5rem',
-          zIndex: 15,
-          backgroundColor: 'rgba(20, 34, 53, 0.65)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.18)',
-          borderRadius: '16px',
-          padding: '0.75rem 1.25rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.85rem',
-          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.4)',
-        }}
-      >
-        <div
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '10px',
-            backgroundColor: 'rgba(120, 154, 152, 0.22)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#789A98',
-            flexShrink: 0,
-          }}
-        >
-          {React.createElement(chapters[activeChapter].icon, { size: 20, strokeWidth: 2 })}
-        </div>
-        <div>
-          <div
-            style={{
-              fontSize: '0.7rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              color: '#789A98',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-            }}
-          >
-            <span
-              style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                backgroundColor: '#789A98',
-                display: 'inline-block',
-                animation: 'pulse-dot 2s infinite ease-in-out',
-              }}
-            />
-            <span>Scene 0{activeChapter + 1} of 04</span>
-          </div>
-          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#ffffff' }}>
-            {chapters[activeChapter].title}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'rgba(231, 235, 237, 0.75)' }}>
-            {chapters[activeChapter].badge}
-          </div>
-        </div>
-      </div>
-
-      {/* 3. FOREGROUND CONTENT & EDITORIAL GLASS CONSOLE */}
+      {/* 2. CENTERED TEXT CONTENT (WITHOUT CONTAINER BACKGROUND) ANIMATED WITH SCROLL */}
       <div
         className="container"
         style={{
@@ -404,475 +270,189 @@ export const HeroCinematic: React.FC<HeroCinematicProps> = ({ onOpenConsultation
           zIndex: 10,
           height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          paddingTop: '4.5rem',
-          paddingBottom: '5rem',
-        }}
-      >
-        <div
-          className="hero-glass-card"
-          style={{
-            maxWidth: '640px',
-            backgroundColor: 'rgba(20, 34, 53, 0.65)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
-            borderRadius: '24px',
-            padding: '2.5rem 2.5rem 2.25rem 2.5rem',
-            boxShadow: '0 30px 70px -15px rgba(10, 20, 35, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-          }}
-        >
-          {/* Live Status Indicator Bar */}
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.65rem',
-              backgroundColor: 'rgba(120, 154, 152, 0.16)',
-              border: '1px solid rgba(120, 154, 152, 0.35)',
-              padding: '0.35rem 0.95rem',
-              borderRadius: '9999px',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              color: '#ffffff',
-              marginBottom: '1.4rem',
-            }}
-          >
-            <span
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: '#52b788',
-                boxShadow: '0 0 10px #52b788',
-                animation: 'pulse-dot 2s infinite',
-              }}
-            />
-            <span style={{ color: '#94b5b3', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Advisory Intake 2026 / 2027
-            </span>
-            <span style={{ color: 'rgba(255, 255, 255, 0.4)' }}>•</span>
-            <span style={{ color: '#ffffff' }}>Impartial Guidance</span>
-          </div>
-
-          {/* DYNAMIC SCENE NARRATIVE HEADLINE */}
-          {activeChapter === 0 && (
-            <div className="fade-in-content">
-              <h1
-                style={{
-                  fontSize: 'clamp(2.4rem, 4.8vw, 3.8rem)',
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  lineHeight: 1.15,
-                  letterSpacing: '-0.03em',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                Your Journey <br />
-                <span
-                  style={{
-                    background: 'linear-gradient(135deg, #ffffff 40%, #94b5b3 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  Starts Here.
-                </span>
-              </h1>
-              <p
-                style={{
-                  fontSize: 'clamp(1rem, 1.6vw, 1.15rem)',
-                  color: 'rgba(231, 235, 237, 0.92)',
-                  lineHeight: 1.65,
-                  marginBottom: '2rem',
-                }}
-              >
-                Expert guidance to help you find the right destination, university and pathway to your future.
-              </p>
-            </div>
-          )}
-
-          {activeChapter === 1 && (
-            <div className="fade-in-content">
-              <h1
-                style={{
-                  fontSize: 'clamp(2.4rem, 4.8vw, 3.8rem)',
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  lineHeight: 1.15,
-                  letterSpacing: '-0.03em',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                Explore Global <br />
-                <span
-                  style={{
-                    background: 'linear-gradient(135deg, #ffffff 40%, #94b5b3 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  Destinations.
-                </span>
-              </h1>
-              <p
-                style={{
-                  fontSize: 'clamp(1rem, 1.6vw, 1.15rem)',
-                  color: 'rgba(231, 235, 237, 0.92)',
-                  lineHeight: 1.65,
-                  marginBottom: '2rem',
-                }}
-              >
-                Connecting ambitious students with top accredited institutions across the UK, Canada, and Australia.
-              </p>
-            </div>
-          )}
-
-          {activeChapter === 2 && (
-            <div className="fade-in-content">
-              <h1
-                style={{
-                  fontSize: 'clamp(2.4rem, 4.8vw, 3.8rem)',
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  lineHeight: 1.15,
-                  letterSpacing: '-0.03em',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                Discover Modern <br />
-                <span
-                  style={{
-                    background: 'linear-gradient(135deg, #ffffff 40%, #94b5b3 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  Campus Life.
-                </span>
-              </h1>
-              <p
-                style={{
-                  fontSize: 'clamp(1rem, 1.6vw, 1.15rem)',
-                  color: 'rgba(231, 235, 237, 0.92)',
-                  lineHeight: 1.65,
-                  marginBottom: '2rem',
-                }}
-              >
-                Experience learning environments that foster innovation, academic excellence, and personal growth.
-              </p>
-            </div>
-          )}
-
-          {activeChapter === 3 && (
-            <div className="fade-in-content">
-              <h1
-                style={{
-                  fontSize: 'clamp(2.4rem, 4.8vw, 3.8rem)',
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  lineHeight: 1.15,
-                  letterSpacing: '-0.03em',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                Step Into <br />
-                <span
-                  style={{
-                    background: 'linear-gradient(135deg, #ffffff 40%, #94b5b3 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  Your Future.
-                </span>
-              </h1>
-              <p
-                style={{
-                  fontSize: 'clamp(1rem, 1.6vw, 1.15rem)',
-                  color: 'rgba(231, 235, 237, 0.92)',
-                  lineHeight: 1.65,
-                  marginBottom: '2rem',
-                }}
-              >
-                Comprehensive advisory support from initial consultation to campus arrival and visa guidance.
-              </p>
-            </div>
-          )}
-
-          {/* Primary & Secondary Call to Actions */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '1rem',
-              alignItems: 'center',
-              marginBottom: '2rem',
-            }}
-          >
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={onOpenConsultation}
-              style={{
-                padding: '0.9rem 2rem',
-                fontSize: '0.98rem',
-                fontWeight: 700,
-                boxShadow: '0 8px 24px rgba(120, 154, 152, 0.35)',
-              }}
-            >
-              <span>Book a Free Consultation</span>
-              <ArrowRight size={18} />
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={scrollToDestinations}
-              style={{
-                padding: '0.9rem 1.8rem',
-                fontSize: '0.98rem',
-              }}
-            >
-              <span>Explore Destinations</span>
-            </button>
-          </div>
-
-          {/* Reassurance Metrics Pill Row */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1rem',
-              paddingTop: '1.5rem',
-              borderTop: '1px solid rgba(255, 255, 255, 0.12)',
-            }}
-          >
-            <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>
-                150+
-              </div>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(231, 235, 237, 0.7)', marginTop: '4px' }}>
-                Top Global Universities
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#94b5b3', lineHeight: 1 }}>
-                98%
-              </div>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(231, 235, 237, 0.7)', marginTop: '4px' }}>
-                Offer Recommendation
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>
-                $0
-              </div>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(231, 235, 237, 0.7)', marginTop: '4px' }}>
-                Placement Fees Charged
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. BOTTOM FLOATING CINEMATIC SCRUB CONTROLLER & HUD */}
-      <div
-        className="hero-timeline-hud"
-        style={{
-          position: 'absolute',
-          bottom: '1.75rem',
-          left: '1.5rem',
-          right: '1.5rem',
-          zIndex: 20,
-          display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '1.25rem',
-          backgroundColor: 'rgba(20, 34, 53, 0.75)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255, 255, 255, 0.14)',
-          borderRadius: '16px',
-          padding: '0.75rem 1.25rem',
-          boxShadow: '0 15px 35px rgba(0, 0, 0, 0.35)',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '0 1.5rem',
         }}
       >
-        {/* Interactive Chapter Selector Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {chapters.map((chap, idx) => (
-            <button
-              key={chap.id}
-              type="button"
-              onClick={() => jumpToChapter(idx)}
-              title={`Jump to Scene 0${idx + 1}: ${chap.title}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.4rem 0.85rem',
-                borderRadius: '8px',
-                backgroundColor:
-                  activeChapter === idx ? 'rgba(120, 154, 152, 0.35)' : 'rgba(255, 255, 255, 0.06)',
-                border:
-                  activeChapter === idx
-                    ? '1px solid rgba(120, 154, 152, 0.7)'
-                    : '1px solid rgba(255, 255, 255, 0.08)',
-                color: activeChapter === idx ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
-                fontSize: '0.78rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.25s ease',
-              }}
-            >
-              <span>0{idx + 1}</span>
-              <span className="chapter-label">{chap.title}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Interactive Scrub Track & Telemetry Time */}
         <div
           style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '920px',
+            minHeight: '380px',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.9rem',
-            flexGrow: 1,
-            maxWidth: '420px',
-            margin: '0 0.5rem',
+            justifyContent: 'center',
           }}
-          className="scrub-track-wrapper"
         >
-          <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'rgba(255, 255, 255, 0.8)' }}>
-            {formatTime(currentSeconds)}
-          </span>
+          {scenes.map((scene, idx) => {
+            const isCurrent = activeChapter === idx;
+            const isPast = activeChapter > idx;
 
-          <div
-            onClick={handleTimelineClick}
-            title="Click along track to scrub video"
-            style={{
-              flexGrow: 1,
-              height: '6px',
-              backgroundColor: 'rgba(255, 255, 255, 0.16)',
-              borderRadius: '9999px',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                width: `${Math.round(currentProgress * 100)}%`,
-                height: '100%',
-                backgroundColor: '#789A98',
-                borderRadius: '9999px',
-                transition: 'width 0.1s linear',
-              }}
-            />
-          </div>
+            return (
+              <div
+                key={scene.id}
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  opacity: isCurrent ? 1 : 0,
+                  transform: isCurrent
+                    ? 'translateY(0) scale(1)'
+                    : isPast
+                    ? 'translateY(-36px) scale(0.96)'
+                    : 'translateY(36px) scale(0.96)',
+                  pointerEvents: isCurrent ? 'auto' : 'none',
+                  transition:
+                    'opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              >
+                {/* Subtle refined category tag */}
+                <div
+                  style={{
+                    display: 'inline-block',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.14em',
+                    color: '#94b5b3',
+                    marginBottom: '1.25rem',
+                    textShadow: '0 2px 8px rgba(0, 0, 0, 0.7)',
+                  }}
+                >
+                  {scene.tag}
+                </div>
 
-          <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'rgba(255, 255, 255, 0.5)' }}>
-            {formatTime(duration)}
-          </span>
-        </div>
+                {/* Main Headline without background box */}
+                <h1
+                  style={{
+                    fontSize: 'clamp(2.6rem, 5.8vw, 4.8rem)',
+                    fontWeight: 800,
+                    color: '#ffffff',
+                    lineHeight: 1.12,
+                    letterSpacing: '-0.03em',
+                    marginBottom: '1.4rem',
+                    textShadow:
+                      '0 4px 30px rgba(0, 0, 0, 0.85), 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.9)',
+                  }}
+                >
+                  {scene.headlineMain}{' '}
+                  <span
+                    style={{
+                      color: '#789A98',
+                      textShadow:
+                        '0 4px 30px rgba(0, 0, 0, 0.85), 0 2px 10px rgba(0, 0, 0, 0.95)',
+                    }}
+                  >
+                    {scene.headlineAccent}
+                  </span>
+                </h1>
 
-        {/* Quick controls: Skip intro & Manual playback */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button
-            type="button"
-            onClick={togglePlayManual}
-            title="Toggle playback"
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              color: '#ffffff',
-              borderRadius: '8px',
-              padding: '0.4rem 0.75rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-            }}
-          >
-            {isPlayingManual ? <Pause size={14} /> : <Play size={14} />}
-            <span className="control-label">{isPlayingManual ? 'Pause' : 'Play'}</span>
-          </button>
+                {/* Supporting description text */}
+                <p
+                  style={{
+                    fontSize: 'clamp(1.05rem, 1.9vw, 1.3rem)',
+                    color: '#F4F3EE',
+                    lineHeight: 1.65,
+                    marginBottom: '2.5rem',
+                    maxWidth: '680px',
+                    margin: '0 auto 2.5rem auto',
+                    textShadow:
+                      '0 2px 16px rgba(0, 0, 0, 0.9), 0 1px 4px rgba(0, 0, 0, 0.95)',
+                  }}
+                >
+                  {scene.description}
+                </p>
 
-          <button
-            type="button"
-            onClick={scrollToDestinations}
-            title="Skip directly to content"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'rgba(255, 255, 255, 0.7)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              padding: '0.4rem 0.6rem',
-              transition: 'color 0.2s ease',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)')}
-          >
-            <FastForward size={14} />
-            <span className="control-label">Skip Intro</span>
-          </button>
+                {/* Centered Action Buttons */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '1rem',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={onOpenConsultation}
+                    style={{
+                      padding: '0.95rem 2.25rem',
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)',
+                    }}
+                  >
+                    <span>{scene.primaryBtnText}</span>
+                    <ArrowRight size={18} />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={scrollToDestinations}
+                    style={{
+                      padding: '0.95rem 2rem',
+                      fontSize: '1rem',
+                      backgroundColor: 'rgba(20, 34, 53, 0.4)',
+                      borderColor: 'rgba(255, 255, 255, 0.35)',
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
+                    }}
+                  >
+                    <span>{scene.secondaryBtnText}</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Styles & Animation Helpers */}
+      {/* 3. MINIMALIST UNDERSTATED SCROLL INDICATOR (CENTERED BOTTOM) */}
+      <div
+        onClick={scrollToDestinations}
+        style={{
+          position: 'absolute',
+          bottom: '2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.4rem',
+          color: 'rgba(255, 255, 255, 0.75)',
+          fontSize: '0.78rem',
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)',
+        }}
+      >
+        <span>Scroll to explore</span>
+        <div
+          style={{
+            animation: 'bounce-arrow 1.8s infinite ease-in-out',
+            color: '#789A98',
+          }}
+        >
+          <ChevronDown size={20} strokeWidth={2.5} />
+        </div>
+      </div>
+
+      {/* Animation styles */}
       <style>{`
-        @keyframes pulse-dot {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.85); }
-        }
-
-        .fade-in-content {
-          animation: textFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes textFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @media (max-width: 992px) {
-          .scene-context-badge {
-            display: none !important;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .hero-timeline-hud {
-            bottom: 0.75rem !important;
-            left: 0.75rem !important;
-            right: 0.75rem !important;
-            padding: 0.5rem 0.75rem !important;
-          }
-          .chapter-label, .control-label {
-            display: none !important;
-          }
-          .scrub-track-wrapper {
-            max-width: 160px !important;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .hero-glass-card {
-            padding: 1.5rem !important;
-            border-radius: 18px !important;
-          }
+        @keyframes bounce-arrow {
+          0%, 100% { transform: translateY(0); opacity: 0.6; }
+          50% { transform: translateY(6px); opacity: 1; }
         }
       `}</style>
     </div>
